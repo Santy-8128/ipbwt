@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="pbwt"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/local">
+				<Option working_dir="/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/local"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/strip">
+				<Option working_dir="/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/strip"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pbwt">
+				<Option output="/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/pbwt" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DVERSION=&quot;&quot;"/>
+					<Add option="-DUSER=&quot;sayantand&quot;"/>
+					<Add option="-DDATE=&quot;Fri Jul  6 18:57:45 PDT 2018&quot;"/>
+					<Add directory="/Users/sayantand/Software/htslib"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/9.1.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 pbwt"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="pbwt/fast">
+				<Option output="/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/pbwt" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DVERSION=&quot;&quot;"/>
+					<Add option="-DUSER=&quot;sayantand&quot;"/>
+					<Add option="-DDATE=&quot;Fri Jul  6 18:57:45 PDT 2018&quot;"/>
+					<Add directory="/Users/sayantand/Software/htslib"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/9.1.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 pbwt/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install">
+				<Option working_dir="/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 install"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="list_install_components">
+				<Option working_dir="/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 list_install_components"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sayantand/Software/ipbwt/ipbwt/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/array.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/array.h">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/dict.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/dict.h">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/hash.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/hash.h">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/pbwt.h">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/pbwtCore.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/pbwtGeneticMap.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/pbwtHtslib.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/pbwtIO.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/pbwtImpute.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/pbwtLikelihood.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/pbwtMain.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/pbwtMatch.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/pbwtMerge.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/pbwtPaint.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/pbwtSample.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/utils.c">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/utils.h">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/src/version.h">
+			<Option target="pbwt"/>
+		</Unit>
+		<Unit filename="/Users/sayantand/Software/ipbwt/ipbwt/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
