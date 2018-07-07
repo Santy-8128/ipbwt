@@ -18,27 +18,27 @@ find_package(ZLIB REQUIRED)
 
 
 add_executable(pbwt
-        array.c
-        array.h
-        dict.c
-        dict.h
-        hash.c
-        hash.h
-        pbwt.h
-        pbwtCore.c
-        pbwtGeneticMap.c
-        pbwtHtslib.c
-        pbwtImpute.c
-        pbwtIO.c
-        pbwtLikelihood.c
-        pbwtMain.c
-        pbwtMatch.c
-        pbwtMerge.c
-        pbwtPaint.c
-        pbwtSample.c
-        utils.c
-        utils.h
-        version.h)
+        src/array.c
+        src/array.h
+        src/dict.c
+        src/dict.h
+        src/hash.c
+        src/hash.h
+        src/pbwt.h
+        src/pbwtCore.c
+        src/pbwtGeneticMap.c
+        src/pbwtHtslib.c
+        src/pbwtImpute.c
+        src/pbwtIO.c
+        src/pbwtLikelihood.c
+        src/pbwtMain.c
+        src/pbwtMatch.c
+        src/pbwtMerge.c
+        src/pbwtPaint.c
+        src/pbwtSample.c
+        src/utils.c
+        src/utils.h
+        src/version.h)
 
 include_directories(/Users/sayantand/Software/htslib/)
 target_link_libraries(pbwt -lz -lm -lbz2 -llzma /Users/sayantand/Software/htslib/libhts.a ${STATGEN_LIBRARY} ${ZLIB_LIBRARIES})
