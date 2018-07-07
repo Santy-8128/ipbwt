@@ -41,7 +41,7 @@ add_executable(pbwt
         version.h)
 
 include_directories(/Users/sayantand/Software/htslib/)
-target_link_libraries(pbwt /Users/sayantand/Software/htslib/ibhts.a ${STATGEN_LIBRARY} ${ZLIB_LIBRARIES})
+target_link_libraries(pbwt -lz -lm -lbz2 -llzma /Users/sayantand/Software/htslib/libhts.a ${STATGEN_LIBRARY} ${ZLIB_LIBRARIES})
 
 install(TARGETS pbwt RUNTIME DESTINATION bin)
 
