@@ -321,7 +321,6 @@ void matchSequencesLong (PBWT *p, char *filename)
 
             if(k + 1 < QueryLength)
                 continue;
-FGDFG
 
             matchStart = k;
             y=reference[a[k+1][newVal]];
