@@ -323,9 +323,6 @@ void matchSequencesLong (PBWT *p, char *filename)
                 continue;
 
 
-
-
-
             matchStart = k;
             y=reference[a[k+1][newVal]];
             while(matchStart >= 0 &&  x[matchStart] == y[matchStart])
