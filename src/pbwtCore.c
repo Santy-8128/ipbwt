@@ -21,7 +21,13 @@
  *-------------------------------------------------------------------
  */
 
+#include "utils.h"
 #include "pbwt.h"
+#include "htslib/synced_bcf_reader.h"
+#include <htslib/faidx.h>
+#include <ctype.h>
+
+
 
 BOOL isCheck = FALSE ;
 BOOL isStats = FALSE ;
@@ -209,6 +215,83 @@ uchar **pbwtHaplotypes (PBWT *p)	/* NB haplotypes can be space costly */
   pbwtCursorDestroy (u) ;
   return hap ;
 }
+
+
+/*************** make haplotypes from VCF******************/
+
+void vcfHaplotypes (VCF *Query, PBWT *RefData, char *filename)	/* NB haplotypes can be space costly */
+{
+    bcf_srs_t *sr = bcf_sr_init() ;
+    if (!bcf_sr_add_reader (sr, filename)) die ("failed to open good vcf file\n") ;
+    bcf_hdr_t *hr = sr->readers[0].header ;
+    Query->M = bcf_hdr_nsamples(hr)*2 ;
+    int i, j, n = 0 ;
+
+
+    Query->hapData = myalloc (Query->M, uchar*) ;
+    uchar *xMissing = myalloc (RefData->M+1, uchar) ;
+    xMissing[RefData->M] = Y_SENTINEL ;  /* needed for efficient packing */
+    long nMissing = 0 ;
+    int nMissingSites = 0 ;
+    Query->N=RefData->N;
+
+
+    for (i = 0 ; i < Query->M ; ++i) Query->hapData[i] = myalloc (RefData->N, uchar) ;
+
+    int mgt_arr = 0, *gt_arr = NULL, markerCount=0 ;
+    while (bcf_sr_next_line (sr)) {
+        bcf1_t *line = bcf_sr_get_line(sr, 0);
+        const char *chrom = bcf_seqname(hr, line);
+        int pos = line->pos + 1;       // bcf coordinates are 0-based
+        char *ref, *REF;
+        ref = REF = strdup(line->d.allele[0]);
+        while ((*ref = toupper(*ref))) ++ref;
+
+
+
+        int ngt = bcf_get_genotypes(hr, line, &gt_arr, &mgt_arr) ;
+        if (ngt <= 0) continue ;  // it seems that -1 is used if GT is not in the FORMAT
+        if (ngt != Query->M && Query->M != 2*ngt) die ("%d != %d GT values at %s:%d - not haploid or diploid?",
+                                               ngt, Query->M, chrom, pos) ;
+
+        memset (xMissing, 0, RefData->M) ;
+        long wasMissing = nMissing ;
+        /* copy the genotypes into array x[] */
+        if (RefData->M == 2*ngt) // all GTs haploid: treat haploid genotypes as diploid homozygous A/A
+        {
+          for (i = 0 ; i < ngt ; i++)
+          { if (gt_arr[i] == bcf_gt_missing)
+            { Query->hapData[2*i][markerCount] = 0 ;
+                Query->hapData[2*i+1][markerCount] = 0; /* use ref for now */
+              xMissing[2*i] = 1 ;
+              xMissing[2*i+1] = 1;
+              nMissing+=2 ;
+            }
+            else {
+                  Query->hapData[2*i][markerCount] = bcf_gt_allele(gt_arr[i]) ;  // convert from BCF binary to 0 or 1
+                  Query->hapData[2*i+1][markerCount] = Query->hapData[2*i][markerCount] ;  // convert from BCF binary to 0 or 1
+            }
+          }
+        }
+        else
+        {
+          for (i = 0 ; i < Query->M ; i++)
+          { if (gt_arr[i] == bcf_int32_vector_end)
+              die ("unexpected end of genotype vector in VCF") ;
+            if (gt_arr[i] == bcf_gt_missing)
+            { Query->hapData[i][markerCount] = 0 ; /* use ref for now */
+              xMissing[i] = 1 ;
+              ++nMissing ;
+            }
+            else
+              Query->hapData[i][markerCount] = bcf_gt_allele(gt_arr[i]) ;  // convert from BCF binary to 0 or 1
+          }
+        }
+        markerCount++;
+
+  }
+}
+
 
 /****************** Y compression and decompression *************************/
 /****************** low level - does not know about PBWT structures *********/

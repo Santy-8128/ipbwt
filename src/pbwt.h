@@ -52,6 +52,18 @@ typedef struct PBWTstruct {
   BOOL  isUnphased ;
 } PBWT ;
 
+
+typedef struct VCFStruct {
+    int N ;			/* number of sites */
+    int M ;			/* number of samples */
+    char* chrom ;			/* chromosome name */
+    Array sites ;			/* array of Site */
+    Array samples ;		/* array of int index into global samples */
+    uchar **hapData;
+    BOOL  isRefFreq ;		/* some flags for the whole VCF */
+    BOOL  isUnphased ;
+} VCF ;
+
 /* philosophy is to be lazy about PBWT - only fill items for which we have info */
 
 typedef struct SiteStruct {
@@ -80,6 +92,7 @@ typedef struct {		/* data structure for moving forwards - doesn't know PBWT */
   int c ;			/* number of 0s in y */
   int *a ;			/* index back to original order */
   int *d ;			/* location of last match */
+  int *count0;      /* numbe */
   int *u ;			/* number of 0s up to and including this position */
   int *b ;			/* for local operations - no long term meaning */
   int *e ;			/* for local operations - no long term meaning */
@@ -105,6 +118,7 @@ PBWT *pbwtSubSites (PBWT *pOld, double fmin, double frac) ;
 PBWT *pbwtSubRange (PBWT *pOld, int start, int end) ;
 void pbwtBuildReverse (PBWT *p) ;
 uchar **pbwtHaplotypes (PBWT *p) ;
+void vcfHaplotypes (VCF *Query, PBWT *ref, char *filename);
 PBWT *pbwtSelectSites (PBWT *pOld, Array sites, BOOL isKeepOld) ;
 PBWT *pbwtSelectSitesFillMissing (PBWT *pOld, Array sites, BOOL isKeepOld) ;
 PBWT *pbwtRemoveSites (PBWT *pOld, Array sites, BOOL isKeepOld) ;
@@ -208,11 +222,12 @@ void pbwtWriteVcf (PBWT *p, char *filename, char *reference_fname, char *mode) ;
 void matchMaximalWithin (PBWT *p, void (*report)(int, int, int, int)) ;
 void pbwtLongMatches (PBWT *p, int L) ; /* internal matches longer than L, maximal if L=0 */
 void matchSequencesNaive (PBWT *p, FILE *fp) ; /* fp is a pbwt file of sequences to match */
+void matchSequencesLong (PBWT *p, char *filename) ;
 void matchSequencesIndexed (PBWT *p, FILE *fp) ;
 void matchSequencesDynamic (PBWT *p, FILE *fp) ;
 void matchSequencesSweep (PBWT *p, PBWT *q, void (*report)(int, int, int, int)) ;
 void matchSequencesSweepSparse (PBWT *p, PBWT *q, int nSparse,
-				void (*report)(int, int, int, int, BOOL)) ;
+                void (*report)(int, int, int, int, BOOL)) ;
 
 /* pbwtImpute.c */
 

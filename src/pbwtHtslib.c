@@ -320,10 +320,10 @@ void pbwtWriteVcf (PBWT *p, char *filename, char *referenceFasta, char *mode)
       if (isDosage) d = pbwtDosageRetrieve (p, u, d, i) ;
       // map haplotypes and dosages to sample order
       for (j = 0 ; j < p->M ; ++j)
-        {
-          hap[u->a[j]] = u->y[j] ;
-          if (isDosage) ad[u->a[j]] = d[j] ;
-        }
+      {
+        hap[u->a[j]] = u->y[j] ;
+        if (isDosage) ad[u->a[j]] = d[j] ;
+      }
       int ac[2] = {0,0};
       float raf = s->refFreq;
       float info = s->imputeInfo;

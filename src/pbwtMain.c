@@ -403,7 +403,9 @@ int main (int argc, char *argv[])
     else if (!strcmp (argv[0], "-longWithin") && argc > 1)
       { pbwtLongMatches (p, atoi(argv[1])) ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-matchNaive") && argc > 1)
-      { FOPEN("matchNaive","r") ; matchSequencesNaive (p, fp) ; FCLOSE ; argc -= 2 ; argv += 2 ; }
+        { FOPEN("matchNaive","r") ; matchSequencesNaive (p, fp) ; FCLOSE ; argc -= 2 ; argv += 2 ; }
+    else if (!strcmp (argv[0], "-longBetween") && argc > 1)
+        { matchSequencesLong (p, argv[1]) ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-matchIndexed") && argc > 1)
       { FOPEN("matchIndexed","r") ; matchSequencesIndexed (p, fp) ; FCLOSE ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-matchDynamic") && argc > 1)

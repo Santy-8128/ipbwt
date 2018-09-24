@@ -216,6 +216,9 @@ PBWT *pbwtRead (FILE *fp)
   return p ;
 }
 
+
+
+
 static BOOL readMatchChrom (char **pChrom, FILE *fp)
 {
   char *newChrom = fgetword (fp) ;

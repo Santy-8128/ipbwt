@@ -21,7 +21,11 @@
  *-------------------------------------------------------------------
  */
 
+#include "utils.h"
 #include "pbwt.h"
+#include "htslib/synced_bcf_reader.h"
+#include <htslib/faidx.h>
+#include <ctype.h>
 
 /************ finding long (or maximal) matches within the set ************/
 
@@ -179,7 +183,11 @@ void pbwtLongMatches (PBWT *p, int L) /* reporting threshold L - if 0 then maxim
 
   pbwtCursorDestroy (u) ;
   if (isCheck) 
-    { int j ; for (j = 0 ; j < p->M ; ++j) free (checkHapsA[j]) ; free (checkHapsA) ; }
+    { int j ;
+    for (j = 0 ; j < p->M ; ++j)
+        free (checkHapsA[j]) ;
+        free (checkHapsA) ;
+    }
 }
 
 /***************** match new sequences into a reference PBWT ******************/
@@ -246,6 +254,132 @@ void matchSequencesNaive (PBWT *p, FILE *fp) /* fp is a pbwt file of sequences t
   for (j = 0 ; j < p->M ; ++j) free(reference[j]) ; free (reference) ;
   free (bestSeq) ; free (bestEnd) ;
 }
+
+
+/* Next implementation is algorithm 4 for between group mathcing
+*/
+
+void matchSequencesLong (PBWT *p, char *filename)
+{
+
+    int QueryLength = 4 ;
+
+    // Query VCF File
+
+    VCF *query=myalloc (1, VCF);
+    vcfHaplotypes(query, p, filename) ; /* make the query sequences */
+    uchar **reference = pbwtHaplotypes (p) ; /* haplotypes for reference */
+
+
+    // Reference PBWT File
+
+    uchar *x, *y ;                /* use for current query, and selected reference query */
+    PbwtCursor *up = pbwtCursorCreate (p, TRUE, TRUE) ;
+    int **a, **d, **u ;		/* stored indexes; a for the Sort Order, d for the Divergence, u for the Count_O */
+    int i, j, k, N = p->N, M = p->M ;
+    int newVal = M-1 , lastLoc, matchStart, maxD, nextSeq;
+
+    /* build indexes */
+
+    a = myalloc (N+1,int*) ; for (i = 0 ; i < N+1 ; ++i) a[i] = myalloc (p->M, int) ;
+    d = myalloc (N+1,int*) ; for (i = 0 ; i < N+1 ; ++i) d[i] = myalloc (p->M+1, int) ;
+    u = myalloc (N,int*) ; for (i = 0 ; i < N ; ++i) u[i] = myalloc (p->M+1, int) ;
+    int *cc = myalloc (p->N, int) ;
+    int *tracker = myalloc (p->N+1, int) ;
+
+
+    for (k = 0 ; k < N ; ++k)
+    {
+        memcpy (a[k], up->a, M*sizeof(int)) ;
+        memcpy (d[k], up->d, (M+1)*sizeof(int)) ;
+        cc[k] = up->c ;
+        pbwtCursorCalculateU (up) ;
+        memcpy (u[k], up->u, (M+1)*sizeof(int)) ;
+        pbwtCursorForwardsReadAD (up, k) ;
+    }
+    memcpy (a[k], up->a, M*sizeof(int)) ;
+    memcpy (d[k], up->d, (M+1)*sizeof(int)) ;
+    pbwtCursorDestroy (up) ;
+
+    fprintf (logFile, "Made haplotypes and indices: ") ; timeUpdate (logFile) ;
+
+
+    /*thread each query in turn*/
+    for(j=0; j<query->M; j++)
+    {
+        tracker[0]=M-1;
+        x = query->hapData[j] ;
+        newVal=M-1;
+
+        for (k = 0 ; k < N ; ++k)
+        {
+            lastLoc=newVal;
+            newVal = x[k]==0 ? u[k][lastLoc+1]-1 : cc[k] -1 + (lastLoc + 1 - u[k][lastLoc+1]);
+            tracker[k+1]=newVal;
+
+            // FIND D ABOVE
+
+            if(k + 1 < QueryLength)
+                continue;
+
+
+            matchStart = k;
+            y=reference[a[k+1][newVal]];
+            while(matchStart >= 0 &&  x[matchStart] == y[matchStart])
+                matchStart--;
+
+            maxD = matchStart+1;
+            nextSeq = newVal;
+
+            while(nextSeq >=0 &&  k-maxD+1 >= QueryLength) {
+                if (k==N-1 || x[k + 1] != reference[a[k + 1][nextSeq]][k + 1])
+                    fprintf (logFile, "MATCH FOUND: %d and %d between Start=%d End=%d !!! Take that \n", j, a[k+1][nextSeq], maxD, k);
+                if (maxD < d[k + 1][nextSeq]) maxD = d[k + 1][nextSeq];
+                nextSeq--;
+            }
+
+
+            // FIND D BELOW
+
+            if(newVal == M-1)
+                continue;
+
+            matchStart = k;
+            y=reference[a[k+1][newVal+1]];
+            while(matchStart >= 0 &&  x[matchStart] == y[matchStart])
+                matchStart--;
+
+            maxD = matchStart+1;
+            nextSeq = newVal+1;
+
+            while(nextSeq<M &&  k-maxD+1 >= QueryLength) {
+
+                if (k==N-1 || x[k + 1] != reference[a[k + 1][nextSeq]][k + 1])
+                    fprintf (logFile, "MATCH FOUND: %d and %d between Start=%d End=%d !!! Take that \n", j, a[k+1][nextSeq], maxD, k);
+
+                if(nextSeq==M-1)
+                    break;
+
+                if (maxD < d[k + 1][nextSeq+1]) maxD = d[k + 1][nextSeq+1];
+                nextSeq++;
+            }
+
+        }
+
+    }
+
+
+    /* cleanup */
+    free (cc) ;
+    free(tracker);
+
+    for (j = 0 ; j < query->M ; ++j) free(query->hapData[j]) ; free (query->hapData) ;
+    for (j = 0 ; j < p->M ; ++j) free(reference[j]) ; free (reference) ;
+    for (j = 0 ; j < N ; ++j) free(a[j]) ; free (a) ;
+    for (j = 0 ; j < N ; ++j) free(d[j]) ; free (d) ;
+    for (j = 0 ; j < N ; ++j) free(u[j]) ; free (u) ;
+}
+
 
 /* Next implementation is algorithm 5 from the paper, precalculating indices in memory. 
    It should be O(NQ) time after O(NM) time index calculation. Downside is O(NM) memory,
