@@ -29,6 +29,10 @@
 
 
 
+
+
+
+
 BOOL isCheck = FALSE ;
 BOOL isStats = FALSE ;
 DICT *variationDict ;	/* "xxx|yyy" where variation is from xxx to yyy in VCF */
