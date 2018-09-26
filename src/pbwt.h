@@ -50,6 +50,8 @@ typedef struct PBWTstruct {
   Array dosageOffset ;		/* of long, site index into zDosage, 0 if no dosage data */
   BOOL  isRefFreq ;		/* some flags for the whole VCF */
   BOOL  isUnphased ;
+  int NoProjections;
+  Array ProjectionList ;
 } PBWT ;
 
 
@@ -72,6 +74,7 @@ typedef struct SiteStruct {
   double freq ;			/* frequency */
   double refFreq ;		/* frequency from reference used for last phasing or imputation */
   double imputeInfo ;		/* estimated r^2 from imputation */
+  uchar *refAllele, *altAllele;
 } Site ;
 
 typedef struct SampleStruct {
@@ -174,6 +177,7 @@ char* popName (Sample *s) ;	/* give back population name for sample i */
 PBWT *pbwtSubSample (PBWT *pOld, Array select) ;
 PBWT *pbwtSubSampleInterval (PBWT *pOld, int start, int Mnew) ;
 PBWT *pbwtSelectSamples (PBWT *pOld, FILE *fp) ;
+PBWT *pbwtReadProjections (PBWT *pOld, FILE *fp) ;
 
 /* pbwtIO.c */
 
@@ -192,6 +196,7 @@ PBWT *pbwtRead (FILE *fp) ;
 Array pbwtReadSitesFile (FILE *fp, char **chrom) ;
 void pbwtReadSites (PBWT *p, FILE *fp) ;
 void pbwtReadRefFreq (PBWT *p, FILE *fp) ;
+Array pbwtReadProjectionListFile (FILE *fp) ;
 Array pbwtReadSamplesFile (FILE *fp) ;
 void pbwtReadSamples (PBWT *p, FILE *fp) ;
 void pbwtReadMissing (PBWT *p, FILE *fp) ;
@@ -223,6 +228,8 @@ void matchMaximalWithin (PBWT *p, void (*report)(int, int, int, int)) ;
 void pbwtLongMatches (PBWT *p, int L) ; /* internal matches longer than L, maximal if L=0 */
 void matchSequencesNaive (PBWT *p, FILE *fp) ; /* fp is a pbwt file of sequences to match */
 void matchSequencesLong (PBWT *p, char *filename) ;
+
+Array getSiteIndices (VCF *query, Array sites);
 void matchSequencesIndexed (PBWT *p, FILE *fp) ;
 void matchSequencesDynamic (PBWT *p, FILE *fp) ;
 void matchSequencesSweep (PBWT *p, PBWT *q, void (*report)(int, int, int, int)) ;

@@ -182,6 +182,7 @@ int main (int argc, char *argv[])
 {
   FILE *fp ;
   FILE *lp ;
+  FILE *proj;
   PBWT *p = 0 ;
   Array test ;
   char *referenceFasta = NULL;
@@ -367,18 +368,20 @@ int main (int argc, char *argv[])
     else if (!strcmp (argv[0], "-selectSamples") && argc > 2)
       { FOPEN("selectSamples","r") ; p = pbwtSelectSamples (p, fp) ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-subsites") && argc > 2)
-      { p = pbwtSubSites (p, atof(argv[1]), atof(argv[2])) ; argc -= 3 ; argv += 3 ; }
+        { p = pbwtSubSites (p, atof(argv[1]), atof(argv[2])) ; argc -= 3 ; argv += 3 ; }
+    else if (!strcmp (argv[0], "-projections") && argc > 1)
+        { FOPEN("readReverse","r") ; pbwtReadProjections (p, fp) ; FCLOSE ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-selectSites") && argc > 1)
       { FOPEN("selectSites","r") ; char *chr = 0 ; Array sites = pbwtReadSitesFile (fp, &chr) ;
 	if (strcmp (chr, p->chrom)) die ("chromosome mismatch in selectSites") ;
 	p = pbwtSelectSites (p, sites, FALSE) ; free (chr) ; arrayDestroy (sites) ;
-	argc -= 2 ; argv += 2 ; 
+	argc -= 2 ; argv += 2 ;
       }
     else if (!strcmp (argv[0], "-removeSites") && argc > 1)
       { FOPEN("removeSites","r") ; char *chr = 0 ; Array sites = pbwtReadSitesFile (fp, &chr) ;
 	if (p->chrom && strcmp (chr, p->chrom)) die ("chromosome mismatch in removeSites") ;
 	p = pbwtRemoveSites (p, sites, FALSE) ; free (chr) ; arrayDestroy (sites) ;
-	argc -= 2 ; argv += 2 ; 
+	argc -= 2 ; argv += 2 ;
       }
     else if (!strcmp (argv[0], "-subrange") && argc > 2)
       { p = pbwtSubRange (p, atoi(argv[1]), atoi(argv[2])) ; argc -= 3 ; argv += 3 ; }
@@ -418,7 +421,7 @@ int main (int argc, char *argv[])
       { p = referencePhase (p, argv[1]) ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-referenceImpute") && argc > 1)
       { int nSparse = 1 ; double fSparse = 1.0 ;
-	char *fileNameRoot = argv[1] ;  argc -= 2 ; argv += 2 ; 
+	char *fileNameRoot = argv[1] ;  argc -= 2 ; argv += 2 ;
 	if (argc && argv[0][0] != '-')
 	  { if (!(nSparse = atoi(argv[0]))) die ("bad refImpute nSparse %s", argv[0]) ;
 	    else { --argc ; ++argv ; }
@@ -436,25 +439,25 @@ int main (int argc, char *argv[])
     else if (!strcmp (argv[0], "-fitAlphaBeta") && argc > 1)
       { pbwtFitAlphaBeta (p, atoi(argv[1])) ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-llCopyModel") && argc > 2)
-      { pbwtLogLikelihoodCopyModel (p, atof(argv[1]), atof(argv[2])) ; 
-	argc -= 3 ; argv += 3 ; 
+      { pbwtLogLikelihoodCopyModel (p, atof(argv[1]), atof(argv[2])) ;
+	argc -= 3 ; argv += 3 ;
       }
     else if (!strcmp (argv[0], "-readGeneticMap") && argc > 1)
       {  FOPEN("readGeneticMap","r") ; readGeneticMap (fp) ; FCLOSE ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-4hapsStats"))
       { pbwt4hapsStats (p) ; argc -= 1 ; argv += 1 ; }
     else if (!strcmp (argv[0], "-paint") && argc > 1)
-      { 
+      {
 	int npr=100;
        	if(argc>2) if(argv[2][0] !='-') npr=atoi(argv[2]);
-	paintAncestryMatrix (p, argv[1],npr) ; argc -= 2 ; argv += 2 ; 
+	paintAncestryMatrix (p, argv[1],npr) ; argc -= 2 ; argv += 2 ;
        	if(argc>0) if(argv[0][0] !='-') {--argc;++argv; }
       }
     else if (!strcmp (argv[0], "-paintSparse") && argc > 1)
-      { 
+      {
 	int npr=100;
        	if(argc>2) if(argv[2][0] !='-') npr=atoi(argv[2]);
-	paintAncestryMatrixSparse (p, argv[1],npr,0) ; argc -= 2 ; argv += 2 ; 
+	paintAncestryMatrixSparse (p, argv[1],npr,0) ; argc -= 2 ; argv += 2 ;
        	if(argc>0) if(argv[0][0] !='-') {--argc;++argv; }
       }
     else if (!strcmp (argv[0], "-play"))

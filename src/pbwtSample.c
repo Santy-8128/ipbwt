@@ -107,6 +107,15 @@ PBWT *pbwtSubSampleInterval (PBWT *pOld, int start, int Mnew)
   return pNew ;
 }
 
+
+
+PBWT *pbwtReadProjections (PBWT *pOld, FILE *fp)
+{
+    pOld->ProjectionList = pbwtReadProjectionListFile (fp) ;
+    return pOld ;
+}
+
+
 PBWT *pbwtSelectSamples (PBWT *pOld, FILE *fp)
 {
   if (!pOld || !pOld->samples) die ("pbwtSelectSamples called without pre-existing sample names") ;

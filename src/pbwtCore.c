@@ -219,6 +219,22 @@ uchar **pbwtHaplotypes (PBWT *p)	/* NB haplotypes can be space costly */
 
 /*************** make haplotypes from VCF******************/
 
+
+static int variation (const char *ref, const char *alt)
+{
+    static char *buf = 0 ;
+    static int buflen = 0 ;
+    if (!buf) { buflen = 64 ; buf = myalloc (buflen, char) ; }
+    int var ;
+    if (strlen (ref) + strlen (alt) + 2 > buflen)
+    { do buflen *= 2 ; while (strlen (ref) + strlen (alt) + 2 > buflen) ;
+        free (buf) ; buf = myalloc (buflen, char) ;
+    }
+    sprintf (buf, "%s\t%s", ref, alt) ;
+    dictAdd (variationDict, buf, &var) ;
+    return var ;
+}
+
 void vcfHaplotypes (VCF *Query, PBWT *RefData, char *filename)	/* NB haplotypes can be space costly */
 {
     bcf_srs_t *sr = bcf_sr_init() ;
@@ -229,6 +245,7 @@ void vcfHaplotypes (VCF *Query, PBWT *RefData, char *filename)	/* NB haplotypes 
 
 
     Query->hapData = myalloc (Query->M, uchar*) ;
+    Query->sites = arrayCreate (10000, Site) ;
     uchar *xMissing = myalloc (RefData->M+1, uchar) ;
     xMissing[RefData->M] = Y_SENTINEL ;  /* needed for efficient packing */
     long nMissing = 0 ;
@@ -247,6 +264,8 @@ void vcfHaplotypes (VCF *Query, PBWT *RefData, char *filename)	/* NB haplotypes 
         ref = REF = strdup(line->d.allele[0]);
         while ((*ref = toupper(*ref))) ++ref;
 
+        char *alt, *ALT;
+        alt = ALT = strdup(line->d.allele[1]) ;
 
 
         int ngt = bcf_get_genotypes(hr, line, &gt_arr, &mgt_arr) ;
@@ -287,9 +306,17 @@ void vcfHaplotypes (VCF *Query, PBWT *RefData, char *filename)	/* NB haplotypes 
               Query->hapData[i][markerCount] = bcf_gt_allele(gt_arr[i]) ;  // convert from BCF binary to 0 or 1
           }
         }
+
+        Site *s = arrayp(Query->sites, markerCount, Site) ;
+        s->x = pos ;
+        s->varD = variation (REF, ALT) ;
+
         markerCount++;
 
   }
+
+  int h=0;
+
 }
 
 
@@ -721,10 +748,16 @@ static PBWT *selectSitesLocal (PBWT *pOld, Array sites, BOOL isKeepOld, BOOL isF
       else if (sp->x > sa->x) { ++ia ; ++sa ; }
       else 
         {
-          char *sa_als = dictName(variationDict, sa->varD) ;
-          char *sp_als = dictName(variationDict, sp->varD) ;
-          BOOL noAlt = sa_als[strlen(sa_als)-1] == '.' || sp_als[strlen(sp_als)-1] == '.';
-          if (!noAlt && sp->varD < sa->varD)
+          //  char *sa_als = sa->altAllele;
+           // char *sp_als = sp->altAllele;
+
+            char  *sa_als = dictName(variationDict, sa->varD) ;
+            char *sp_als = dictName(variationDict, sp->varD) ;
+
+
+            BOOL noAlt = sa_als[strlen(sa_als)-1] == '.' || sp_als[strlen(sp_als)-1] == '.';
+
+            if (!noAlt && sp->varD < sa->varD)
             { ++ip ; ++sp ;
               pbwtCursorForwardsRead (uOld) ;
             }

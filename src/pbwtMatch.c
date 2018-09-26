@@ -259,34 +259,117 @@ void matchSequencesNaive (PBWT *p, FILE *fp) /* fp is a pbwt file of sequences t
 /* Next implementation is algorithm 4 for between group mathcing
 */
 
+Array getSiteIndices (VCF *query, Array sites) {
+
+
+    int iq = 0, is = 0;
+    Site *sq = arrp(query->sites, iq, Site), *ss = arrp(sites, is, Site);
+    Array Indices = arrayCreate(arrayMax(sites), int) ;
+    int index=0;
+
+    while (iq < query->N && is < arrayMax(sites))
+    {
+        if (sq->x < ss->x) {
+            ++iq;
+            ++sq;
+
+
+        }
+        else if (sq->x > ss->x)
+        {
+            ++is;
+            ++ss;
+        }
+        else
+        {
+
+            char  *sq_alleles = dictName(variationDict, sq->varD) ;
+            char *ss_alleles = dictName(variationDict, ss->varD) ;
+
+            BOOL noAlt = sq_alleles[strlen(sq_alleles)-1] == '.' || ss_alleles[strlen(ss_alleles)-1] == '.';
+
+            if (!noAlt && sq->varD < ss->varD)
+            { ++iq ; ++sq ;
+            }
+            else if (!noAlt && sq->varD > ss->varD) { ++is ; ++ss ; }
+            else
+            {
+                arr(Indices, index++, int)=iq;
+                ++iq ; ++sq ;  ++is ; ++ss ;
+            }
+
+        }
+    }
+    return Indices;
+
+}
+
+
 void matchSequencesLong (PBWT *p, char *filename)
 {
 
-    int QueryLength = 4 ;
+
+
+    FILE *fp ;
+    int QueryLength = 3 ;
 
     // Query VCF File
 
     VCF *query=myalloc (1, VCF);
     vcfHaplotypes(query, p, filename) ; /* make the query sequences */
-    uchar **reference = pbwtHaplotypes (p) ; /* haplotypes for reference */
+
+
+
+    if(p->ProjectionList!=NULL)
+    {
+
+
+
+        for(int proj=0; proj<p->ProjectionList->max; proj++)
+        {
+
+            fprintf (logFile, "RUNNING NEW PROJECTION %d\n\n\n\n",proj);
+
+
+
+            // Create new PBWT
+            PBWT *p_proj=myalloc(1,PBWT);
+
+            // Read Projection File
+            if (!(fp = fopen (arr(p->ProjectionList,proj,char*),"r"))) die ("failed to open projection file %s", p->ProjectionList[proj]);
+            char *chr = 0 ; Array sites = pbwtReadSitesFile (fp, &chr) ;
+            if (strcmp (chr, p->chrom)) die ("chromosome mismatch in selectSites") ;
+
+
+            // Scaffold current PBWT to new PBWT_PROJECTED
+
+            p_proj = pbwtSelectSites (p, sites, TRUE) ;
+
+            Array MyIndices = getSiteIndices(query, sites);
+
+
+
+
+
 
 
     // Reference PBWT File
+            uchar **reference = pbwtHaplotypes (p_proj) ; /* haplotypes for reference */
 
     uchar *x, *y ;                /* use for current query, and selected reference query */
-    PbwtCursor *up = pbwtCursorCreate (p, TRUE, TRUE) ;
+    PbwtCursor *up = pbwtCursorCreate (p_proj, TRUE, TRUE) ;
     int **a, **d, **u ;		/* stored indexes; a for the Sort Order, d for the Divergence, u for the Count_O */
-    int i, j, k, N = p->N, M = p->M ;
+    int i, j, k, N = p_proj->N, M = p_proj->M ;
     int newVal = M-1 , lastLoc, matchStart, maxD, nextSeq;
 
     /* build indexes */
 
-    a = myalloc (N+1,int*) ; for (i = 0 ; i < N+1 ; ++i) a[i] = myalloc (p->M, int) ;
-    d = myalloc (N+1,int*) ; for (i = 0 ; i < N+1 ; ++i) d[i] = myalloc (p->M+1, int) ;
-    u = myalloc (N,int*) ; for (i = 0 ; i < N ; ++i) u[i] = myalloc (p->M+1, int) ;
-    int *cc = myalloc (p->N, int) ;
-    int *tracker = myalloc (p->N+1, int) ;
-
+    a = myalloc (N+1,int*) ; for (i = 0 ; i < N+1 ; ++i) a[i] = myalloc (p_proj->M, int) ;
+    d = myalloc (N+1,int*) ; for (i = 0 ; i < N+1 ; ++i) d[i] = myalloc (p_proj->M+1, int) ;
+    u = myalloc (N,int*) ; for (i = 0 ; i < N ; ++i) u[i] = myalloc (p_proj->M+1, int) ;
+    int *cc = myalloc (p_proj->N, int) ;
+    int *tracker = myalloc (p_proj->N+1, int) ;
+    x = myalloc(p_proj->N, uchar);
 
     for (k = 0 ; k < N ; ++k)
     {
@@ -308,11 +391,13 @@ void matchSequencesLong (PBWT *p, char *filename)
     for(j=0; j<query->M; j++)
     {
         tracker[0]=M-1;
-        x = query->hapData[j] ;
+        for (k = 0 ; k < N ; ++k)
+            x[k] = query->hapData[j][arr(MyIndices,k,int)] ;
         newVal=M-1;
 
         for (k = 0 ; k < N ; ++k)
         {
+
             lastLoc=newVal;
             newVal = x[k]==0 ? u[k][lastLoc+1]-1 : cc[k] -1 + (lastLoc + 1 - u[k][lastLoc+1]);
             tracker[k+1]=newVal;
@@ -369,15 +454,30 @@ void matchSequencesLong (PBWT *p, char *filename)
     }
 
 
+
     /* cleanup */
     free (cc) ;
     free(tracker);
 
-    for (j = 0 ; j < query->M ; ++j) free(query->hapData[j]) ; free (query->hapData) ;
     for (j = 0 ; j < p->M ; ++j) free(reference[j]) ; free (reference) ;
     for (j = 0 ; j < N ; ++j) free(a[j]) ; free (a) ;
     for (j = 0 ; j < N ; ++j) free(d[j]) ; free (d) ;
     for (j = 0 ; j < N ; ++j) free(u[j]) ; free (u) ;
+
+
+            int h=0;
+            free (chr) ;
+            arrayDestroy (sites) ;
+        }
+
+
+
+
+    }
+    for (int j = 0 ; j < query->M ; ++j) free(query->hapData[j]) ; free (query->hapData) ;
+
+
+
 }
 
 

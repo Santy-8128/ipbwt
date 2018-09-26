@@ -242,22 +242,22 @@ Array pbwtReadSitesFile (FILE *fp, char **chrom)
 
   while (!feof(fp))
     if (readMatchChrom (chrom, fp))	/* if p->chrom then match, else set if not "." */
-      { if (feof(fp)) break ;
-	s = arrayp(sites, arrayMax(sites), Site) ;
-	s->x = 0 ; while (isdigit(c = fgetc(fp))) s->x = s->x*10 + (c-'0') ;
-	if (!feof(fp) && c != '\n')
-	  { if (!isspace (c)) die ("bad position line %d in sites file", line) ;
-	    while (isspace(c = fgetc(fp)) && c != '\n') ;
-	    if (c == '\n') die ("bad end of line at line %d in sites file", line) ;
-	    int i = 0 ; array(varTextArray, i++, char) = c ;
-	    while ((c = fgetc(fp)) && c != '\n') 
-	      array(varTextArray, i++, char) = c ;
-	    array(varTextArray, i, char) = 0 ;
-	    dictAdd (variationDict, arrayp(varTextArray,0,char), &s->varD) ;
-	    while (c != '\n' && !feof(fp)) c = fgetc(fp) ;
-	  }
-	++line ;
+    { if (feof(fp)) break ;
+      s = arrayp(sites, arrayMax(sites), Site) ;
+      s->x = 0 ; while (isdigit(c = fgetc(fp))) s->x = s->x*10 + (c-'0') ;
+      if (!feof(fp) && c != '\n')
+      { if (!isspace (c)) die ("bad position line %d in sites file", line) ;
+        while (isspace(c = fgetc(fp)) && c != '\n') ;
+        if (c == '\n') die ("bad end of line at line %d in sites file", line) ;
+        int i = 0 ; array(varTextArray, i++, char) = c ;
+        while ((c = fgetc(fp)) && c != '\n')
+          array(varTextArray, i++, char) = c ;
+        array(varTextArray, i, char) = 0 ;
+        dictAdd (variationDict, arrayp(varTextArray,0,char), &s->varD) ;
+        while (c != '\n' && !feof(fp)) c = fgetc(fp) ;
       }
+      ++line ;
+    }
     else if (!feof(fp))
       die ("failed to match chromosome in sites file: line %d", line) ;
 
@@ -343,6 +343,39 @@ Array pbwtReadSamplesFile (FILE *fp) /* for now assume all samples diploid */
 
   return samples ;
 }
+
+
+Array pbwtReadProjectionListFile (FILE *fp) /* list of files each of which contains the projection variants */
+{
+  char *name, c ;
+  int line = 0 ;
+
+
+  Array nameArray = arrayCreate (1024, char*) ;
+  //char **nameArray = myalloc (100, char*) ;
+  int index=0;
+  while (!feof(fp))
+  { int n = 0 ;
+
+      name = myalloc(1024,char);
+
+      while ((c = getc(fp)) && !isspace(c) && !feof (fp)) name[n++] = c;
+      name[n++] = 0;
+
+      if (feof(fp)) break ;
+
+      array(nameArray, index, char*)=name;
+
+      if (!n) die ("no name line %ld in projection list file", index+1) ;
+      index++;
+
+  }
+
+  fprintf (logFile, "read %ld projection files \n", index) ;
+
+  return nameArray ;
+}
+
 
 void pbwtReadSamples (PBWT *p, FILE *fp)
 {
