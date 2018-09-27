@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(pbwt C)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 11)
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 #add_custom_target(pbwt COMMAND make -C /Users/sayantand/Software/pbwt/ CLION_EXE_DIR=/Users/sayantand/Software/pbwt)
 
@@ -15,7 +15,30 @@ execute_process(COMMAND whoami OUTPUT_VARIABLE USER OUTPUT_STRIP_TRAILING_WHITES
 add_definitions(-DVERSION="${PROJECT_VERSION}" -DUSER="${USER}" -DDATE="${DATE}")
 
 find_package(ZLIB REQUIRED)
+find_package(BZip2 REQUIRED)
+find_package(LibLZMA REQUIRED)
 
+find_library(LIBM_LIBRARY m)
+if(NOT LIBM_LIBRARY)
+  message(FATAL_ERROR "libm not found")
+endif()
+
+find_library(HTS_LIBRARY hts)
+if(NOT HTS_LIBRARY)
+  message(FATAL_ERROR "htslib not found")
+endif()
+
+find_library(ZSTD_LIBRARY zstd)
+if(NOT ZSTD_LIBRARY)
+  message(FATAL_ERROR "libzstd not found")
+endif()
+
+find_library(STATGEN_LIBRARY StatGen)
+if(NOT STATGEN_LIBRARY)
+  message(FATAL_ERROR "libStatGen not found")
+endif()
+
+find_package(Threads)
 
 add_executable(pbwt
         src/array.c
@@ -41,7 +64,7 @@ add_executable(pbwt
         src/version.h)
 
 include_directories(/Users/sayantand/Software/htslib/)
-target_link_libraries(pbwt -lz -lm -lbz2 -llzma /Users/sayantand/Software/htslib/libhts.a ${STATGEN_LIBRARY} ${ZLIB_LIBRARIES})
+target_link_libraries(pbwt ${HTS_LIBRARY} ${STATGEN_LIBRARY} ${LIBM_LIBRARY} ${BZIP2_LIBRARIES} ${LIBLZMA_LIBRARIES} ${ZLIB_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 install(TARGETS pbwt RUNTIME DESTINATION bin)
 
