@@ -28,10 +28,6 @@ if(NOT HTS_LIBRARY)
   message(FATAL_ERROR "htslib not found")
 endif()
 
-find_library(ZSTD_LIBRARY zstd)
-if(NOT ZSTD_LIBRARY)
-  message(FATAL_ERROR "libzstd not found")
-endif()
 
 find_library(STATGEN_LIBRARY StatGen)
 if(NOT STATGEN_LIBRARY)
