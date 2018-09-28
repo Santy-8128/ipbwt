@@ -406,7 +406,9 @@ int main (int argc, char *argv[])
     else if (!strcmp (argv[0], "-longWithin") && argc > 1)
       { pbwtLongMatches (p, atoi(argv[1])) ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-matchNaive") && argc > 1)
-        { FOPEN("matchNaive","r") ; matchSequencesNaive (p, fp) ; FCLOSE ; argc -= 2 ; argv += 2 ; }
+    { FOPEN("matchNaive","r") ; matchSequencesNaive (p, fp) ; FCLOSE ; argc -= 2 ; argv += 2 ; }
+    else if (!strcmp (argv[0], "-length") && argc > 1)
+        {  UpdateThreshold (p, atoi(argv[1])) ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-longBetween") && argc > 1)
         { matchSequencesLong (p, argv[1]) ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-matchIndexed") && argc > 1)
@@ -464,7 +466,7 @@ int main (int argc, char *argv[])
       { p = playGround (p) ; argc -= 1 ; argv += 1 ; }
     else
       die ("unrecognised command %s\nType pbwt without arguments for help", *argv) ;
-    timeUpdate(logFile) ;
+    //timeUpdate(logFile) ;
   }
   if (p) pbwtDestroy(p) ;
   if (variationDict) dictDestroy(variationDict);

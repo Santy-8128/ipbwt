@@ -228,7 +228,7 @@ void matchMaximalWithin (PBWT *p, void (*report)(int, int, int, int)) ;
 void pbwtLongMatches (PBWT *p, int L) ; /* internal matches longer than L, maximal if L=0 */
 void matchSequencesNaive (PBWT *p, FILE *fp) ; /* fp is a pbwt file of sequences to match */
 void matchSequencesLong (PBWT *p, char *filename) ;
-
+void UpdateThreshold (PBWT *p, int length);
 Array getSiteIndices (VCF *query, Array sites);
 void matchSequencesIndexed (PBWT *p, FILE *fp) ;
 void matchSequencesDynamic (PBWT *p, FILE *fp) ;

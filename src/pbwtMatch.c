@@ -33,6 +33,7 @@ static Array matchLengthHist = 0 ;
 static uchar **checkHapsA ;	/* section global for checking only */
 static uchar **checkHapsB ;	/* section global for checking only */
 static int Ncheck ;		/* section global for checking only */
+static int LengthThreshold ;		/* section global for checking only */
 
 static void checkMatchMaximal (uchar *x, uchar *y, int start, int end, int N)
 {
@@ -305,13 +306,21 @@ Array getSiteIndices (VCF *query, Array sites) {
 }
 
 
+
+void UpdateThreshold (PBWT *p, int length)
+{
+    LengthThreshold = length;
+}
+
+
+
 void matchSequencesLong (PBWT *p, char *filename)
 {
 
 
 
     FILE *fp ;
-    int QueryLength = 3 ;
+    int QueryLength = LengthThreshold ;
 
     // Query VCF File
 
