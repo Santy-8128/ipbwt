@@ -224,6 +224,7 @@ int main (int argc, char *argv[])
       fprintf (stderr, "  -merge <file> ...         merge two or more pbwt files\n") ;
       fprintf (stderr, "  -write <file>             write pbwt file; '-' for stdout\n") ;
       fprintf (stderr, "  -writeSites <file>        write sites file; '-' for stdout\n") ;
+      fprintf (stderr, "  -writeMatches <file>      write matches file; '-' for stdout\n") ;
       fprintf (stderr, "  -writeSamples <file>      write samples file; '-' for stdout\n") ;
       fprintf (stderr, "  -writeMissing <file>      write missing file; '-' for stdout\n") ;
       fprintf (stderr, "  -writeDosage <file>       write missing file; '-' for stdout\n") ;
@@ -331,6 +332,8 @@ int main (int argc, char *argv[])
       { FOPEN("write","w") ; pbwtWrite (p, fp) ; FCLOSE ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-writeSites") && argc > 1)
       { FOPEN("writeSites","w") ; pbwtWriteSites (p, fp) ; FCLOSE ; argc -= 2 ; argv += 2 ; }
+    else if (!strcmp (argv[0], "-writeMatches") && argc > 1)
+      {  UpdateMatchOutFile (p, argv[1]) ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-writeSamples") && argc > 1)
       { FOPEN("writeSamples","w") ; pbwtWriteSamples (p, fp) ; FCLOSE ; argc -= 2 ; argv += 2 ; }
     else if (!strcmp (argv[0], "-writeMissing") && argc > 1)

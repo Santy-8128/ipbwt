@@ -371,7 +371,7 @@ Array pbwtReadProjectionListFile (FILE *fp) /* list of files each of which conta
 
   }
 
-  fprintf (logFile, "read %ld projection files \n", index) ;
+  fprintf (logFile, "read %d projection files \n", index) ;
 
   return nameArray ;
 }

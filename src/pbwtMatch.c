@@ -34,6 +34,7 @@ static uchar **checkHapsA ;	/* section global for checking only */
 static uchar **checkHapsB ;	/* section global for checking only */
 static int Ncheck ;		/* section global for checking only */
 static int LengthThreshold ;		/* section global for checking only */
+static char *MatchOutputFileName;		/* section global for checking only */
 
 static void checkMatchMaximal (uchar *x, uchar *y, int start, int end, int N)
 {
@@ -306,6 +307,14 @@ Array getSiteIndices (VCF *query, Array sites) {
 }
 
 
+void UpdateMatchOutFile (PBWT *p, char *filename)
+{
+    MatchOutputFileName = filename;
+}
+
+
+
+
 
 void UpdateThreshold (PBWT *p, int length)
 {
@@ -321,6 +330,8 @@ void matchSequencesLong (PBWT *p, char *filename)
 
     FILE *fp ;
     int QueryLength = LengthThreshold ;
+
+    int h=0;
 
     // Query VCF File
 
@@ -362,121 +373,130 @@ void matchSequencesLong (PBWT *p, char *filename)
 
 
 
-    // Reference PBWT File
-            uchar **reference = pbwtHaplotypes (p_proj) ; /* haplotypes for reference */
+            // Reference PBWT File
+                    uchar **reference = pbwtHaplotypes (p_proj) ; /* haplotypes for reference */
 
-    uchar *x, *y ;                /* use for current query, and selected reference query */
-    PbwtCursor *up = pbwtCursorCreate (p_proj, TRUE, TRUE) ;
-    int **a, **d, **u ;		/* stored indexes; a for the Sort Order, d for the Divergence, u for the Count_O */
-    int i, j, k, N = p_proj->N, M = p_proj->M ;
-    int newVal = M-1 , lastLoc, matchStart, maxD, nextSeq;
+            uchar *x, *y ;                /* use for current query, and selected reference query */
+            PbwtCursor *up = pbwtCursorCreate (p_proj, TRUE, TRUE) ;
+            int **a, **d, **u ;		/* stored indexes; a for the Sort Order, d for the Divergence, u for the Count_O */
+            int i, j, k, N = p_proj->N, M = p_proj->M ;
+            int newVal = M-1 , lastLoc, matchStart, maxD, nextSeq;
 
-    /* build indexes */
+            /* build indexes */
 
-    a = myalloc (N+1,int*) ; for (i = 0 ; i < N+1 ; ++i) a[i] = myalloc (p_proj->M, int) ;
-    d = myalloc (N+1,int*) ; for (i = 0 ; i < N+1 ; ++i) d[i] = myalloc (p_proj->M+1, int) ;
-    u = myalloc (N,int*) ; for (i = 0 ; i < N ; ++i) u[i] = myalloc (p_proj->M+1, int) ;
-    int *cc = myalloc (p_proj->N, int) ;
-    int *tracker = myalloc (p_proj->N+1, int) ;
-    x = myalloc(p_proj->N, uchar);
+            a = myalloc (N+1,int*) ; for (i = 0 ; i < N+1 ; ++i) a[i] = myalloc (p_proj->M, int) ;
+            d = myalloc (N+1,int*) ; for (i = 0 ; i < N+1 ; ++i) d[i] = myalloc (p_proj->M+1, int) ;
+            u = myalloc (N,int*) ; for (i = 0 ; i < N ; ++i) u[i] = myalloc (p_proj->M+1, int) ;
+            int *cc = myalloc (p_proj->N, int) ;
+            int *tracker = myalloc (p_proj->N+1, int) ;
+            x = myalloc(p_proj->N, uchar);
 
-    for (k = 0 ; k < N ; ++k)
-    {
-        memcpy (a[k], up->a, M*sizeof(int)) ;
-        memcpy (d[k], up->d, (M+1)*sizeof(int)) ;
-        cc[k] = up->c ;
-        pbwtCursorCalculateU (up) ;
-        memcpy (u[k], up->u, (M+1)*sizeof(int)) ;
-        pbwtCursorForwardsReadAD (up, k) ;
-    }
-    memcpy (a[k], up->a, M*sizeof(int)) ;
-    memcpy (d[k], up->d, (M+1)*sizeof(int)) ;
-    pbwtCursorDestroy (up) ;
-
-    fprintf (logFile, "Made haplotypes and indices: ") ; timeUpdate (logFile) ;
+            for (k = 0 ; k < N ; ++k)
+            {
+                memcpy (a[k], up->a, M*sizeof(int)) ;
+                memcpy (d[k], up->d, (M+1)*sizeof(int)) ;
+                cc[k] = up->c ;
+                pbwtCursorCalculateU (up) ;
+                memcpy (u[k], up->u, (M+1)*sizeof(int)) ;
+                pbwtCursorForwardsReadAD (up, k) ;
+            }
+            memcpy (a[k], up->a, M*sizeof(int)) ;
+            memcpy (d[k], up->d, (M+1)*sizeof(int)) ;
+            pbwtCursorDestroy (up) ;
 
 
-    /*thread each query in turn*/
-    for(j=0; j<query->M; j++)
-    {
-        tracker[0]=M-1;
-        for (k = 0 ; k < N ; ++k)
-            x[k] = query->hapData[j][arr(MyIndices,k,int)] ;
-        newVal=M-1;
 
-        for (k = 0 ; k < N ; ++k)
-        {
+            fprintf (logFile, "Made haplotypes and indices: ") ; timeUpdate (logFile) ;
+            char *tag=malloc(10);
+            sprintf(tag,"%d",proj+1);
+            FILE *fp;
 
-            lastLoc=newVal;
-            newVal = x[k]==0 ? u[k][lastLoc+1]-1 : cc[k] -1 + (lastLoc + 1 - u[k][lastLoc+1]);
-            tracker[k+1]=newVal;
+            if (!(fp = fopenTag (MatchOutputFileName,tag,"w"))) die ("failed to open %s file", MatchOutputFileName);
 
-            // FIND D ABOVE
+            /*thread each query in turn*/
+            for(j=0; j<query->M; j++)
+            {
+                tracker[0]=M-1;
+                for (k = 0 ; k < N ; ++k)
+                    x[k] = query->hapData[j][arr(MyIndices,k,int)] ;
+                newVal=M-1;
 
-            if(k + 1 < QueryLength)
-                continue;
+                for (k = 0 ; k < N ; ++k)
+                {
+
+                    lastLoc=newVal;
+                    newVal = x[k]==0 ? u[k][lastLoc+1]-1 : cc[k] -1 + (lastLoc + 1 - u[k][lastLoc+1]);
+                    tracker[k+1]=newVal;
+
+                    // FIND D ABOVE
+
+                    if(k + 1 < QueryLength)
+                        continue;
 
 
-            matchStart = k;
-            y=reference[a[k+1][newVal]];
-            while(matchStart >= 0 &&  x[matchStart] == y[matchStart])
-                matchStart--;
+                    matchStart = k;
+                    y=reference[a[k+1][newVal]];
+                    while(matchStart >= 0 &&  x[matchStart] == y[matchStart])
+                        matchStart--;
 
-            maxD = matchStart+1;
-            nextSeq = newVal;
+                    maxD = matchStart+1;
+                    nextSeq = newVal;
 
-            while(nextSeq >=0 &&  k-maxD+1 >= QueryLength) {
-                if (k==N-1 || x[k + 1] != reference[a[k + 1][nextSeq]][k + 1])
-                    fprintf (logFile, "MATCH FOUND: %d and %d between Start=%d End=%d !!! Take that \n", j, a[k+1][nextSeq], maxD, k);
-                if (maxD < d[k + 1][nextSeq]) maxD = d[k + 1][nextSeq];
-                nextSeq--;
+                    while(nextSeq >=0 &&  k-maxD+1 >= QueryLength) {
+                        if (k==N-1 || x[k + 1] != reference[a[k + 1][nextSeq]][k + 1])
+                            //fprintf (fp, "MATCH FOUND: %d and %d between Start=%d End=%d !!! Take that \n", j, a[k+1][nextSeq], maxD, k);
+                            fprintf (fp, "%d %d %d %d\n", j, a[k+1][nextSeq], maxD, k);
+                        if (maxD < d[k + 1][nextSeq]) maxD = d[k + 1][nextSeq];
+                        nextSeq--;
+                    }
+
+
+                    // FIND D BELOW
+
+                    if(newVal == M-1)
+                        continue;
+
+                    matchStart = k;
+                    y=reference[a[k+1][newVal+1]];
+                    while(matchStart >= 0 &&  x[matchStart] == y[matchStart])
+                        matchStart--;
+
+                    maxD = matchStart+1;
+                    nextSeq = newVal+1;
+
+                    while(nextSeq<M &&  k-maxD+1 >= QueryLength) {
+
+                        if (k==N-1 || x[k + 1] != reference[a[k + 1][nextSeq]][k + 1])
+                            //fprintf (fp, "MATCH FOUND: %d and %d between Start=%d End=%d !!! Take that \n", j, a[k+1][nextSeq], maxD, k);
+                            fprintf (fp, "%d %d %d %d\n", j, a[k+1][nextSeq], maxD, k);
+
+                        if(nextSeq==M-1)
+                            break;
+
+                        if (maxD < d[k + 1][nextSeq+1]) maxD = d[k + 1][nextSeq+1];
+                        nextSeq++;
+                    }
+
+                }
+
             }
 
 
-            // FIND D BELOW
 
-            if(newVal == M-1)
-                continue;
+            /* cleanup */
+            free (cc) ;
+            free(tracker);
+            fclose(fp);
 
-            matchStart = k;
-            y=reference[a[k+1][newVal+1]];
-            while(matchStart >= 0 &&  x[matchStart] == y[matchStart])
-                matchStart--;
-
-            maxD = matchStart+1;
-            nextSeq = newVal+1;
-
-            while(nextSeq<M &&  k-maxD+1 >= QueryLength) {
-
-                if (k==N-1 || x[k + 1] != reference[a[k + 1][nextSeq]][k + 1])
-                    fprintf (logFile, "MATCH FOUND: %d and %d between Start=%d End=%d !!! Take that \n", j, a[k+1][nextSeq], maxD, k);
-
-                if(nextSeq==M-1)
-                    break;
-
-                if (maxD < d[k + 1][nextSeq+1]) maxD = d[k + 1][nextSeq+1];
-                nextSeq++;
-            }
-
-        }
-
-    }
+            for (j = 0 ; j < p->M ; ++j) free(reference[j]) ; free (reference) ;
+            for (j = 0 ; j < N ; ++j) free(a[j]) ; free (a) ;
+            for (j = 0 ; j < N ; ++j) free(d[j]) ; free (d) ;
+            for (j = 0 ; j < N ; ++j) free(u[j]) ; free (u) ;
 
 
-
-    /* cleanup */
-    free (cc) ;
-    free(tracker);
-
-    for (j = 0 ; j < p->M ; ++j) free(reference[j]) ; free (reference) ;
-    for (j = 0 ; j < N ; ++j) free(a[j]) ; free (a) ;
-    for (j = 0 ; j < N ; ++j) free(d[j]) ; free (d) ;
-    for (j = 0 ; j < N ; ++j) free(u[j]) ; free (u) ;
-
-
-            int h=0;
-            free (chr) ;
-            arrayDestroy (sites) ;
+                    int h=0;
+                    free (chr) ;
+                    arrayDestroy (sites) ;
         }
 
 
